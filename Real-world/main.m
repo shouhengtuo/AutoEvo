@@ -7,17 +7,17 @@ clc; format compact; format shorte;
 
     Alg    = {@GA,@PSO,@DE,@CMAES,@AutoEvo};
     Algstr = {'GA','PSO','DE','CMA-ES','AutoEvo'};
-    Data = zeros(length(Alg),100);
+    Data = zeros(length(Alg),500);
     for i = 1 : size(Data,2)
-        P = rand(randi([10 30]),30)*20-10;
+        P = rand(randi([10 30]),randi([10 100]))*20-10;
         PO(P);
         for a = 1 : length(Alg)
             clc; fprintf('%d-%d\n',i,a);
-            Data(a,i) = min(Alg{a}(@PO,10,30,100,100));
+            Data(a,i) = min(Alg{a}(@PO,1,size(P,2),100,200));
         end
     end
     save RealWorld Data;
-    
+
     load RealWorld Data;
     R = zeros(1,size(Data,1));
     for i = 1 : size(Data,1)
@@ -41,11 +41,12 @@ persistent P C;
         P = X;
         C = cov(P);
     else
+        X = X./repmat(sum(abs(X),2),1,size(X,2));
         f1 = X*sum(P,1)';
         f2 = zeros(size(X,1),1);
         for i = 1 : size(X,1)
             f2(i) = X(i,:)*C*X(i,:)';
         end
-        F = 10*f2 - f1;
+        F = f2 - f1;
     end
 end
