@@ -6,8 +6,8 @@ function [bestObj,bestDec] = AutoEvo(func,N,G,Weight,Lower,Upper)
     mode = nargin < 4;  % 0.Solving problems 1.Evolving operators
     k    = 10;          % Number of parameter sets
     if mode
-        Lower = repmat([0 0 -1 1e-6],N,k);
-        Upper = repmat([1 1  1    1],N,k);
+        Lower = repmat([0 -1 0 -1 0 -1 1e-6],N,k);
+        Upper = repmat([1  1 1  1 1  1    1],N,k);
     else
         if nargin < 5
             Lower  = zeros(N,10) - 10;
@@ -39,12 +39,14 @@ function [bestObj,bestDec] = AutoEvo(func,N,G,Weight,Lower,Upper)
         type = reshape(type,size(Parent1));
         r1   = randn(size(Parent1));
         r2   = randn(size(Parent1));
+        r3   = randn(size(Parent1));
         Qdec = Parent1;
         for i = 1 : length(Fit)
             index = type == i;
-            Qdec(index) = (Upper(index)-Lower(index)).*r1(index)*Weight(i,1) + ...
-                          Parent2(index).*(r2(index)*Weight(i,2)+Weight(i,3)) + ...
-                          Parent1(index).*(1-r2(index)*Weight(i,2)-Weight(i,3));
+            Qdec(index) = Upper(index).*(r1(index)*Weight(i,1)+Weight(i,2)) + ...
+                          Lower(index).*(r2(index)*Weight(i,3)+Weight(i,4)) + ...
+                          Parent2(index).*(r3(index)*Weight(i,5)+Weight(i,6)) + ...
+                          Parent1(index).*(1-r1(index)*Weight(i,1)-Weight(i,2)-r2(index)*Weight(i,3)-Weight(i,4)-r3(index)*Weight(i,5)-Weight(i,6));
         end
         Qdec = min(max(Qdec,Lower),Upper);
         if mode
